@@ -23,7 +23,7 @@ The model architecture of CLIP-VAE closely resembles that of a conventional VAE.
 
  The overall loss term is defined as follows:
  
- $\mathcal{L}(x, y) = \mathcal{L}_\mathrm{CLIP}(z_x, z_y)$
+ $\mathcal{L}(x, y) = \mathcal{L}_\mathrm{CLIP}(z_x, z_y) + \mathcal{L}_\mathrm{KLD}$
  
  $\mathcal{L}(x, y) = \mathcal{L}_\mathrm{CLIP}(z_x, z_y) + \mathcal{L}_\mathrm{KLD}(z_x, \mathcal{N}(0, I)) + \mathcal{L}_\mathrm{KLD}(z_y, \mathcal{N}(0, I)) + \mathcal{L}_\mathrm{REC}(x, \hat{x}) + \mathcal{L}_\mathrm{REC}(y, \hat{y})$
 
