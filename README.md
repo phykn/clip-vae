@@ -25,7 +25,7 @@ The model architecture of CLIP-VAE closely resembles that of a conventional VAE.
 
  $\mathcal{L}(x, y) = \mathcal{L}_\mathrm{CLIP}(z_x, z_y) + \mathcal{L}_\mathrm{KLD}(z_x, \mathcal{N}(0, I)) + \mathcal{L}_\mathrm{KLD}(z_y, \mathcal{N}(0, I)) + \mathcal{L}_\mathrm{REC}(x, \hat{x}) + \mathcal{L}_\mathrm{REC}(y, \hat{y})$
 
-Here, $\mathcal{L}_\mathrm{CLIP}$ represents the CLIP loss, which is defined by [1]. $\mathcal{L}_\mathrm{KLD}$ refers to the Kullback-Leibler divergence between the latent vector $z$ and a standard normal distribution $\mathcal{N}(0, I)$. $\mathcal{L}_\mathrm{REC}$ denotes the reconstruction loss.
+Here, $\mathcal{L}_{\mathrm{CLIP}}$ represents the CLIP loss, which is defined by [1]. $\mathcal{L}_\mathrm{KLD}$ refers to the Kullback-Leibler divergence between the latent vector $z$ and a standard normal distribution $\mathcal{N}(0, I)$. $\mathcal{L}_\mathrm{REC}$ denotes the reconstruction loss.
 
 In this loss formulation, the CLIP loss term encourages alignment between the latent vectors $z_x$ and $z_y$, capturing the semantic relationship between the image $x$ and its associated label $y$. The KLD terms regularize the latent vectors by ensuring they adhere to a standard normal distribution. Finally, the reconstruction loss terms $\mathcal{L}_\mathrm{REC}$ measure the dissimilarity between the original inputs ($x$ and $y$) and their corresponding reconstructions ($\hat{x}$ and $\hat{y}$).
 
