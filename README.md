@@ -23,6 +23,8 @@ The model architecture of CLIP-VAE closely resembles that of a conventional VAE.
 
  The overall loss term is defined as follows:
 
+ $\mathcal{L}(x, y)$
+
  $\mathcal{L}(x, y) = \mathcal{L}_\mathrm{CLIP}(z_{x}, z_{y}) + \mathcal{L}_\mathrm{KLD}(z_{x}, \mathcal{N}(0, I)) + \mathcal{L}_\mathrm{KLD}(z_{y}, \mathcal{N}(0, I)) + \mathcal{L}_\mathrm{REC}(x, \hat{x}) + \mathcal{L}_\mathrm{REC}(y, \hat{y})$
 
 Here, $\mathcal{L}_\mathrm{CLIP}$ represents the CLIP loss, which is defined by [1]. $\mathcal{L}_\mathrm{KLD}$ refers to the Kullback-Leibler divergence between the latent vector $z$ and a standard normal distribution $\mathcal{N}(0, I)$. $\mathcal{L}_\mathrm{REC}$ denotes the reconstruction loss.
