@@ -1,4 +1,4 @@
-# CLIP-VAE: Combining CLIP and VAE for Image Generation
+## CLIP-VAE: Combining CLIP and VAE for Image Generation
 
 This repository offers the implementation code for CLIP-VAE, an innovative model that merges OpenAI's CLIP[1] and Variational Autoencoder (VAE)[2] for image generation. The model is composed of two essential components.
 
@@ -28,7 +28,11 @@ Here, $\mathcal L_{CLIP}$ represents the CLIP loss, which is defined by [1]. $\m
 In this loss formulation, the CLIP loss term encourages alignment between the latent vectors $z_x$ and $z_y$, capturing the semantic relationship between the image $x$ and its associated label $y$. The KLD terms regularize the latent vectors by ensuring they adhere to a standard normal distribution. Finally, the reconstruction loss terms $\mathcal L_{REC}$ measure the dissimilarity between the original inputs ($x$ and $y$) and their corresponding reconstructions ($\hat x$ and $\hat y$).
 
 ## Sampling
+The CLIP-VAE has the capability to generate images from random Gaussian noise. This is achieved by sampling random points from the latent space and inputting them into the decoder of the CLIP-VAE model. 
 
+When using the latent vectors obtained through the label encoder, it becomes possible to generate images corresponding to specific desired labels. This resembles the concept of conditional VAE, where the generation process is conditioned on specific input information. By leveraging the label encoder, CLIP-VAE enables the generation of images that align with the intended labels, thereby allowing for targeted image synthesis. 
+
+Please check the image generation example in [this notebook](https://github.com/phykn/clip-vae/blob/main/test.ipynb).
 
 ## Reference
 1. Radford, Alec, et al. "Learning transferable visual models from natural language supervision." International conference on machine learning. PMLR (2021)
