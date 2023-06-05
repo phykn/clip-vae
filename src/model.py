@@ -8,10 +8,9 @@ class image_encoder(nn.Module):
         super().__init__()
 
         block = nn.Sequential(
-            nn.Linear(dim, dim),
             nn.LayerNorm(dim),
-            nn.GELU(),
-            nn.Linear(dim, dim)
+            nn.Linear(dim, dim),            
+            nn.GELU()
         )
 
         self.stem = nn.Linear(in_features, dim)
@@ -24,21 +23,16 @@ class image_encoder(nn.Module):
         for block in self.blocks:
             x = x + block(x)
 
-        mu = self.to_mu(x)
-        log_var = self.to_log_var(x)
-        return mu, log_var
+        return self.to_mu(x), self.to_log_var(x)
     
-    def sampling(self, mu, log_var, deterministic = False):
-        if deterministic:
-            return mu
-        
+    def sampling(self, mu, log_var):        
         std = torch.exp(0.5 * log_var)
         eps = torch.rand_like(std)
         return eps * std + mu
     
-    def forward(self, x, deterministic = False):
+    def forward(self, x):
         mu, log_var = self.encode(x)
-        z = self.sampling(mu, log_var, deterministic = deterministic)
+        z = self.sampling(mu, log_var)
         return z, mu, log_var
     
 class label_encoder(nn.Module):
@@ -47,8 +41,8 @@ class label_encoder(nn.Module):
         self.net = nn.Sequential(
             nn.Embedding(num_label, dim),
             nn.LayerNorm(dim),
-            nn.GELU(),
-            nn.Linear(dim, dim)
+            nn.Linear(dim, dim),
+            nn.GELU()
         )
 
         self.to_mu = nn.Linear(dim, z_dim)
@@ -56,22 +50,16 @@ class label_encoder(nn.Module):
 
     def encode(self, x):
         x = self.net(x)
-
-        mu = self.to_mu(x)
-        log_var = self.to_log_var(x)
-        return mu, log_var
+        return self.to_mu(x), self.to_log_var(x)
     
-    def sampling(self, mu, log_var, deterministic = False):
-        if deterministic:
-            return mu
-        
+    def sampling(self, mu, log_var):        
         std = torch.exp(0.5 * log_var)
         eps = torch.rand_like(std)
         return eps * std + mu
 
-    def forward(self, x, deterministic = False):
+    def forward(self, x):
         mu, log_var = self.encode(x)
-        z = self.sampling(mu, log_var, deterministic = deterministic)
+        z = self.sampling(mu, log_var)
         return z, mu, log_var
     
 class image_decoder(nn.Module):
@@ -79,10 +67,9 @@ class image_decoder(nn.Module):
         super().__init__()
 
         block = nn.Sequential(
-            nn.Linear(dim, dim),
             nn.LayerNorm(dim),
-            nn.GELU(),
-            nn.Linear(dim, dim)
+            nn.Linear(dim, dim),
+            nn.GELU()
         )
 
         self.stem = nn.Linear(z_dim, dim)
@@ -94,7 +81,8 @@ class image_decoder(nn.Module):
         for block in self.blocks:
             x = x + block(x)
         x = self.out(x)
-        return F.sigmoid(x)
+        x = F.sigmoid(x)
+        return x
     
 class label_decoder(nn.Module):
     def __init__(self, num_label = 10, z_dim = 64, dim = 128):
@@ -102,15 +90,16 @@ class label_decoder(nn.Module):
 
         self.stem = nn.Linear(z_dim, dim)
         self.net = nn.Sequential(
-            nn.Linear(dim, dim),
             nn.LayerNorm(dim),
-            nn.GELU(),
-            nn.Linear(dim, num_label)
+            nn.Linear(dim, dim),
+            nn.GELU()
         )
+        self.out = nn.Linear(dim, num_label)
 
     def forward(self, x):
         x = self.stem(x)
         x = self.net(x)
+        x = self.out(x)
         return x
     
 class clip_vae(nn.Module):
@@ -124,15 +113,14 @@ class clip_vae(nn.Module):
         self.logit_scale = nn.Parameter(torch.ones([]) * math.log(1 / 0.07))
         self.ce_clip_image = nn.CrossEntropyLoss()
         self.ce_clip_label = nn.CrossEntropyLoss()
-
         self.ce_vae_label = nn.CrossEntropyLoss()
 
-    def encode_image(self, x, deterministic = False):
-        z, mu, log_var = self.image_encoder(x, deterministic = deterministic)
+    def encode_image(self, x):
+        z, mu, log_var = self.image_encoder(x)
         return z
     
-    def encode_label(self, x, deterministic = False):
-        z, mu, log_var = self.label_encoder(x, deterministic = deterministic)
+    def encode_label(self, x):
+        z, mu, log_var = self.label_encoder(x)
         return z
     
     def decode_image(self, x):
@@ -158,20 +146,19 @@ class clip_vae(nn.Module):
         ground_truth = torch.arange(len(image), dtype = torch.long, device = image.device)
         loss_image = self.ce_clip_image(logits_per_image, ground_truth)
         logg_label = self.ce_clip_label(logits_per_label, ground_truth)
+        
         return (loss_image + logg_label) / 2
     
     def vae_loss(self, image, label):
         image_z, image_mu, image_log_var = self.image_encoder(image)
         image_d = self.decode_image(image_z)
-
-        image_rec = F.binary_cross_entropy(image_d, image, reduction = "mean")
         image_kld = -0.5 * torch.mean(1 + image_log_var - image_mu.pow(2) - image_log_var.exp())
+        image_rec = F.binary_cross_entropy(image_d, image, reduction = "mean")
 
         label_z, label_mu, label_log_var = self.label_encoder(label)
         label_d = self.decode_label(label_z)
-
-        label_ce = self.ce_vae_label(label_d, label)
         label_kld = -0.5 * torch.mean(1 + label_log_var - label_mu.pow(2) - label_log_var.exp())
+        label_ce = self.ce_vae_label(label_d, label)
 
         return image_rec + image_kld + label_ce + label_kld
     
@@ -180,7 +167,7 @@ class clip_vae(nn.Module):
         label = label.long()
         return self.clip_loss(image, label) + self.vae_loss(image, label)
     
-def build_model(in_features = 784, num_label = 10, z_dim = 64, dim = 128, n_layer = 3):
+def build_model(in_features = 784, num_label = 10, z_dim = 16, dim = 64, n_layer = 6):
     return clip_vae(
         in_features = in_features,
         num_label = num_label,
