@@ -10,6 +10,27 @@ CLIP-VAE integrates these two components to tackle the task of image generation.
 
 This repository encompasses all the essential code and example datasets, such as MNIST, required for training the CLIP-VAE model and generating images. Furthermore, it offers tools and example code that facilitate the visualization of the training process for the model. By leveraging this codebase and the accompanying examples, you can implement and train your very own CLIP-VAE model, ultimately enabling you to generate images according to your specific preferences.
 
+
+### Model
+The model architecture of CLIP-VAE closely resembles that of a conventional VAE.
+
+<figure>
+<img src="image/model.png" alt="Trulli" style="width:80%">
+<figcaption><b>Figure: Model architecture</b></figcaption>
+</figure>
+
+ However, it introduces a significant distinction by incorporating an additional loss term that quantifies the difference between the latent vectors of images and their respective labels. This augmented loss term incentivizes the model to acquire a latent space representation that not only captures image reconstruction capabilities but also maintains the semantic relationship between an image and its corresponding label. By integrating this loss term, CLIP-VAE achieves a holistic understanding of both visual and semantic aspects, enabling it to generate images that align with their intended labels while preserving their inherent image characteristics.
+
+ The overall loss term is defined as follows:
+
+ $\mathcal{L}(x, y) = \mathcal{L}_\mathrm{CLIP}(z_{x}, z_{y}) + \mathcal{L}_\mathrm{KLD}(z_{x}, \mathcal{N}(0, I)) + \mathcal{L}_\mathrm{KLD}(z_{y}, \mathcal{N}(0, I)) + \mathcal{L}_\mathrm{REC}(x, \hat{x}) + \mathcal{L}_\mathrm{REC}(y, \hat{y})$
+
+Here, $\mathcal{L}_\mathrm{CLIP}$ represents the CLIP loss, which is defined by [1]. $\mathcal{L}_\mathrm{KLD}$ refers to the Kullback-Leibler divergence between the latent vector $z$ and a standard normal distribution $\mathcal{N}(0, I)$. $\mathcal{L}_\mathrm{REC}$ denotes the reconstruction loss.
+
+In this loss formulation, the CLIP loss term encourages alignment between the latent vectors $z_x$ and $z_y$, capturing the semantic relationship between the image $x$ and its associated label $y$. The KLD terms regularize the latent vectors by ensuring they adhere to a standard normal distribution. Finally, the reconstruction loss terms $\mathcal{L}_\mathrm{REC}$ measure the dissimilarity between the original inputs ($x$ and $y$) and their corresponding reconstructions ($\hat{x}$ and $\hat{y}$).
+
+By optimizing this combined loss function, CLIP-VAE learns to generate images that both align with their labels and exhibit strong reconstruction fidelity.
+
 ### Reference
 1. Radford, Alec, et al. "Learning transferable visual models from natural language supervision." International conference on machine learning. PMLR (2021)
 2. Kingma, Diederik P., and Max Welling. "Auto-encoding variational bayes." arXiv preprint arXiv:1312.6114 (2013)
