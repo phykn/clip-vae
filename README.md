@@ -22,7 +22,9 @@ The model architecture of CLIP-VAE closely resembles that of a conventional VAE.
  However, it introduces a significant distinction by incorporating an additional loss term that quantifies the difference between the latent vectors of images and their respective labels. This augmented loss term incentivizes the model to acquire a latent space representation that not only captures image reconstruction capabilities but also maintains the semantic relationship between an image and its corresponding label. By integrating this loss term, CLIP-VAE achieves a holistic understanding of both visual and semantic aspects, enabling it to generate images that align with their intended labels while preserving their inherent image characteristics.
 
  The overall loss term is defined as follows:
-
+ 
+ $\mathcal{L}(x, y)$
+ 
  $\mathcal{L}(x, y) = \mathcal{L}_\mathrm{CLIP}(z_x, z_y) + \mathcal{L}_\mathrm{KLD}(z_x, \mathcal{N}(0, I)) + \mathcal{L}_\mathrm{KLD}(z_y, \mathcal{N}(0, I)) + \mathcal{L}_\mathrm{REC}(x, \hat{x}) + \mathcal{L}_\mathrm{REC}(y, \hat{y})$
 
 Here, $\mathcal{L}_{\mathrm{CLIP}}$ represents the CLIP loss, which is defined by [1]. $\mathcal{L}_\mathrm{KLD}$ refers to the Kullback-Leibler divergence between the latent vector $z$ and a standard normal distribution $\mathcal{N}(0, I)$. $\mathcal{L}_\mathrm{REC}$ denotes the reconstruction loss.
