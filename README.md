@@ -21,7 +21,13 @@ However, it introduces a significant distinction by incorporating an additional 
 
 The overall loss term is defined as follows:
 
-$\mathcal L (x, y) = \mathcal L_{CLIP} (z_x, z_y) + \mathcal L_{KLD} (z_x, \mathcal N (0, I)) + \mathcal L_{KLD}(z_y, \mathcal N (0, I)) + \mathcal L_{REC}(x, \hat x) + \mathcal L_{REC}(y, \hat y)$
+$$
+\begin{aligned}
+    \mathcal L (x, y) &= \mathcal L_{CLIP} (z_x, z_y) \\
+                      &+ \mathcal L_{KLD} (z_x, \mathcal N (0, I)) + \mathcal L_{KLD}(z_y, \mathcal N (0, I)) \\
+                      &+ \mathcal L_{REC}(x, \hat x) + \mathcal L_{REC}(y, \hat y)
+\end{aligned}
+$$
 
 Here, $\mathcal L_{CLIP}$ represents the CLIP loss, which is defined by [1]. $\mathcal L_{KLD}$ refers to the Kullback-Leibler divergence between the latent vector $z$ and a standard normal distribution $\mathcal N (0, I)$. $\mathcal L_{REC}$ denotes the reconstruction loss.
 
